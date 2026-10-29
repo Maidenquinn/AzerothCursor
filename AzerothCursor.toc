@@ -1,0 +1,9 @@
+## Interface: 11200
+## Title: Azeroth Cursor
+## Notes: High contrast cursor ring, aura and crosshair. FR / EN.
+## Author: Kevin / Maidenhead
+## Version: 1.0.0
+## SavedVariables: AzerothCursorDB
+
+Core.lua
+Options.lua
