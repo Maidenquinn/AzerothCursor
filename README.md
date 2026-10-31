@@ -1,11 +1,11 @@
-# Azeroth Cursor 1.0.0
+# Azeroth Cursor 1.1.0
 
 Find your mouse in the middle of spell effects in **Azeroth Survivors** on Windows.
 Standalone Interface 11200 / Lua 5.0 addon. French and English settings.
 
 ## Download and install
 
-Download **AzerothCursor-1.0.0.zip** from the [GitHub release](https://github.com/Maidenquinn/AzerothCursor/releases/tag/v1.0.0).
+Download **AzerothCursor-1.1.0.zip** from the [GitHub release](https://github.com/Maidenquinn/AzerothCursor/releases/tag/v1.1.0).
 Close the game and extract the `AzerothCursor` folder into the active installation's
 `benilla-config/AddOns` folder. Enable the addon if needed and restart the game.
 GitHub's automatic **Source code** ZIP is for developers, not direct installation.
@@ -31,7 +31,7 @@ color picker does not enable them. Settings persist through normal game shutdown
   This action enables the marker and can be used in a macro.
 - French/English language switch, draggable settings window and minimap shortcut.
 
-### Upcoming changes on main
+### Class colors and minimap compatibility
 
 Thanks to [Kohrinthian's contribution](https://github.com/Maidenquinn/AzerothCursor/pull/1),
 the settings also offer shortcuts for all nine class colors, with your current
@@ -40,8 +40,7 @@ are used when available, with fallback colors if the client omits that table.
 
 The minimap shortcut supports square maps through KeijinUI or `GetMinimapShape`,
 stays outside their edge, and adapts to rectangular sizes or delayed UI styling.
-Collectors that reparent addon buttons keep control of the shortcut. These changes
-are on main for the next release; the linked 1.0.0 player ZIP predates them.
+Collectors that reparent addon buttons keep control of the shortcut. These changes are included in the 1.1.0 player ZIP.
 
 ## Commands
 
@@ -88,7 +87,9 @@ migration, controls, minimap placement, automatic activation, strict ColorSelect
 Texture-region arguments, color cancellation and click transparency.
 The builder creates the player ZIP and SHA-256 file in `dist/`.
 
-The maintainer reported the final candidate working in game and authorized 1.0.
+The maintainer reported the original 1.0 candidate working in game. The 1.1 changes
+passed the expanded Lua 5.0 regression suite; native KeijinUI rendering remains
+to be confirmed in game.
 Tests simulate FrameXML and do not certify every native rendering path. Further
 testing should check controls, point alignment at different UI scales, spell
 effects, item dragging, mouselook, native menus and persistence.

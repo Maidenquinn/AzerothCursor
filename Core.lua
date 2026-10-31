@@ -1,4 +1,4 @@
-AzerothCursor = { version = "1.0.0" }
+AzerothCursor = { version = "1.1.0" }
 local A = AzerothCursor
 A.colors = {
  {"Cyan", 0, 1, 1}, {"Magenta", 1, .12, .85}, {"Lime", .45, 1, .05},

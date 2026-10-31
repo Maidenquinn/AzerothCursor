@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 - 2026-10-31
 
 - Class-color shortcuts contributed by [Kohrinthian](https://github.com/Kohrinthian)
   in [PR #1](https://github.com/Maidenquinn/AzerothCursor/pull/1): current class first,
