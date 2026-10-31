@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Class-color shortcuts contributed by [Kohrinthian](https://github.com/Kohrinthian)
+  in [PR #1](https://github.com/Maidenquinn/AzerothCursor/pull/1): current class first,
+  followed by the other eight classes. Buttons follow the FR/EN language switch.
+- Square-minimap support, including KeijinUI, with the complete shortcut outside
+  the edge. Rectangular sizes, delayed styling and resizing are handled as well.
+- Guard optional class/shape APIs and incomplete class-color tables. Native class
+  colors are preferred, with built-in fallback colors when unavailable.
+- Preserve saved minimap angles and leave reparented buttons under their collector's control.
+- Add native Lua 5.0 regression coverage for all nine classes, both languages,
+  color selection, scaled dragging, map shapes/sizes, saved angles and collectors.
+
 ## 1.0.0 — 2026-10-29
 
 First public release for Azeroth Survivors on Windows.
