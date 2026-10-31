@@ -4,14 +4,16 @@ local strings={
  size="Diamètre du repère",thickness="Épaisseur de l'anneau",opacity="Opacité du repère",halo="Intensité du halo",crosshair="Taille du réticule",dot="Taille du point central",
  balanced="Équilibré",raid="Combat intense",minimal="Discret",preview="APERÇU",color="Choisir la couleur",native="Origine",cancel="Annuler",accept="Valider",red="Rouge",green="Vert",blue="Bleu",miniTip="Clic : options. Glisser : déplacer.",custom="Personnalisée",find="Retrouver le curseur",close="Fermer",
  hint="Le centre indique le point de clic. Le repère laisse passer tous les clics.",footer="/azcursor find : signal lumineux  •  /azcursor off : désactiver",
- detail="Origine : curseur natif seul.\nActivez le repère ou choisissez un préréglage pour ajouter les effets.",
- Cyan="Cyan",Magenta="Magenta",Lime="Vert citron",Gold="Or",White="Blanc",Orange="Orange",Red="Rouge",Blue="Bleu"},
+ detail="Origine : curseur natif seul.\nActivez le repère ou choisissez un préréglage.",
+ Cyan="Cyan",Magenta="Magenta",Lime="Vert citron",Gold="Or",White="Blanc",Orange="Orange",Red="Rouge",Blue="Bleu",
+ WARRIOR="Guerrier", PALADIN="Paladin", HUNTER="Chasseur", ROGUE="Voleur", PRIEST="Prêtre", SHAMAN="Chaman", MAGE="Mage", WARLOCK="Démoniste", DRUID="Druide"},
  en={title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",yes="On",no="Off",
  size="Marker diameter",thickness="Ring thickness",opacity="Marker opacity",halo="Halo intensity",crosshair="Crosshair size",dot="Center dot size",
  balanced="Balanced",raid="Intense combat",minimal="Minimal",preview="PREVIEW",color="Choose color",native="Original",cancel="Cancel",accept="Apply",red="Red",green="Green",blue="Blue",miniTip="Click: settings. Drag: move.",custom="Custom",find="Locate cursor",close="Close",
  hint="The center marks the click point. All clicks pass through the marker.",footer="/azcursor find: light beacon  •  /azcursor off: disable",
- detail="Original: native cursor only.\nEnable the marker or choose a preset to add effects.",
- Cyan="Cyan",Magenta="Magenta",Lime="Lime",Gold="Gold",White="White",Orange="Orange",Red="Red",Blue="Blue"}
+ detail="Original: native cursor only.\nEnable the marker or choose a preset.",
+ Cyan="Cyan",Magenta="Magenta",Lime="Lime",Gold="Gold",White="White",Orange="Orange",Red="Red",Blue="Blue",
+ WARRIOR="Warrior", PALADIN="Paladin", HUNTER="Hunter", ROGUE="Rogue", PRIEST="Priest", SHAMAN="Shaman", MAGE="Mage", WARLOCK="Warlock", DRUID="Druid"}
 }
 function A.L(key) return strings[A.db.language][key] or key end
 local function Back(f,r,g,b)
@@ -101,6 +103,7 @@ function A.OpenColorPicker()
  p.title:SetText(A.L("color"));p.accept.text:SetText(A.L("accept"));p.cancel.text:SetText(A.L("cancel"))
  p.Refresh();p:Show()
 end
+
 function A.CreateMinimap()
  if A.minimap or not Minimap then return end
  local b=CreateFrame("Button","AzerothCursorMinimapButton",Minimap);A.minimap=b
@@ -111,19 +114,34 @@ function A.CreateMinimap()
  icon:SetWidth(22);icon:SetHeight(22);icon:SetPoint("CENTER",b,"CENTER",0,0)
  b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
  function b.Place()
-  local a=math.rad(A.db.minimapAngle)
-  local radius=math.max(Minimap:GetWidth(),Minimap:GetHeight())/2+8
-  b:ClearAllPoints();b:SetPoint("CENTER",Minimap,"CENTER",radius*math.cos(a),radius*math.sin(a))
+  local angle = A.db.minimapAngle or 225
+  local a = math.rad(angle)
+  local dx, dy = math.cos(a), math.sin(a)
+  local x, y
+  
+  if KeijinUI and KeijinUI.MinimapStyled and KeijinUI.MinimapStyled() then
+   local m = math.max(math.abs(dx), math.abs(dy))
+   local offset = (Minimap:GetWidth() / 2) + 2
+   x, y = (dx / m) * offset, (dy / m) * offset
+  else
+   local radius = math.max(Minimap:GetWidth(), Minimap:GetHeight()) / 2 + 8
+   x, y = radius * dx, radius * dy
+  end
+  b:ClearAllPoints();b:SetPoint("CENTER", Minimap, "CENTER", x, y)
  end
  b:RegisterForClicks("LeftButtonUp");b:RegisterForDrag("LeftButton")
  b:SetScript("OnClick",function() if GameTooltip then GameTooltip:Hide() end;A.ToggleOptions() end)
  b:SetScript("OnDragStart",function() b.dragging=true end)
  b:SetScript("OnDragStop",function() b.dragging=false end)
  b:SetScript("OnUpdate",function()
-  if not b.dragging then return end
-  local x,y=GetCursorPosition();local mx,my=Minimap:GetCenter();local scale=Minimap:GetEffectiveScale()
-  if not mx or not my or not x or not y or not scale or scale<=0 then return end
-  A.db.minimapAngle=math.deg(math.atan2(y/scale-my,x/scale-mx));b.Place()
+  if not b.dragging or not Minimap:GetLeft() then return end
+  local cx, cy = GetCursorPosition()
+  local scale = Minimap:GetEffectiveScale()
+  local mx = Minimap:GetLeft() + (Minimap:GetWidth() / 2)
+  local my = Minimap:GetBottom() + (Minimap:GetHeight() / 2)
+  local a = math.deg(math.atan2(cy/scale - my, cx/scale - mx))
+  if a < 0 then a = a + 360 end
+  A.db.minimapAngle = a; b.Place()
  end)
  b:SetScript("OnEnter",function()
   if not GameTooltip then return end
@@ -132,7 +150,12 @@ function A.CreateMinimap()
  end)
  b:SetScript("OnLeave",function() if GameTooltip then GameTooltip:Hide() end end)
  b.Place()
+
+ local loadFrame = CreateFrame("Frame")
+ loadFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+ loadFrame:SetScript("OnEvent", function() b.Place() end)
 end
+
 function A.RefreshOptions()
  if not A.panel then return end
  local p=A.panel
@@ -151,10 +174,22 @@ function A.RefreshOptions()
  A.preview:SetScale(math.min(1,180/math.max(A.db.size*1.8,A.db.crosshair*2+16)))
  if A.db.enabled then A.preview:Show();p.nativeCursor:Hide() else A.preview:Hide();p.nativeCursor:Show() end
 end
+
+local function ClassButton(p, x, y, w, h, class)
+ local b=CreateFrame("Button",nil,p);b:SetPoint("TOPLEFT",p,"TOPLEFT",x,y);b:SetWidth(w);b:SetHeight(h)
+ local c=RAID_CLASS_COLORS[class] or {r=1,g=1,b=1}
+ Back(b,c.r*.15,c.g*.15,c.b*.15)
+ b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+ b.text=Text(b,0,-(h/2-5.5),w,h,11);b.text:SetJustifyH("CENTER")
+ b.text:SetText(A.L(class));b.text:SetTextColor(c.r,c.g,c.b)
+ b:SetScript("OnClick",function() A.db.rgb={c.r,c.g,c.b};A.db.enabled=true;A.Apply();A.RefreshOptions() end)
+ return b
+end
+
 function A.BuildOptions()
  if A.panel then return end
  local p=CreateFrame("Frame","AzerothCursorOptions",UIParent);A.panel=p
- p:SetWidth(680);p:SetHeight(600);p:SetPoint("CENTER",UIParent,"CENTER",0,0)
+ p:SetWidth(680);p:SetHeight(630);p:SetPoint("CENTER",UIParent,"CENTER",0,0)
  p:SetFrameStrata("DIALOG");p:EnableMouse(true);p:SetMovable(true);p:SetClampedToScreen(true)
  Back(p,.025,.045,.06);p.labels={};p.rows={}
  local function Label(key,x,y,w,h,size)
@@ -200,19 +235,36 @@ function A.BuildOptions()
  p.swatch=p.color:CreateTexture(nil,"OVERLAY");p.swatch:SetTexture("Interface\\Buttons\\WHITE8X8")
  p.swatch:SetWidth(16);p.swatch:SetHeight(16);p.swatch:SetPoint("LEFT",p.color,"LEFT",8,0)
  p.color.text:SetWidth(182);p.color.text:ClearAllPoints();p.color.text:SetPoint("TOPLEFT",p.color,"TOPLEFT",30,-7)
- Label("detail",438,-444,220,122,12)
+ Label("detail",438,-435,220,35,12)
+ 
+ -- Dynamic Class Grid Generation (using math.mod instead of %)
+ local allClasses = {"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "SHAMAN", "MAGE", "WARLOCK", "DRUID"}
+ local _, playerClass = UnitClass("player")
+ if not RAID_CLASS_COLORS[playerClass] then playerClass = "WARRIOR" end
+ local otherClasses = {}
+ for _, c in ipairs(allClasses) do
+  if c ~= playerClass then table.insert(otherClasses, c) end
+ end
+ 
+ ClassButton(p, 448, -475, 200, 22, playerClass)
+ for i, cls in ipairs(otherClasses) do
+  local row, col = math.floor((i-1)/2), math.mod(i-1, 2)
+  ClassButton(p, 448 + col * 105, -502 - row * 26, 95, 22, cls)
+ end
+
  Label("hint",22,-461,390,42,12)
- LocalButton("find",22,-514,236,A.Find)
- LocalButton("close",268,-514,154,function() p:Hide() end)
- Label("footer",22,-568,630,22,12)
+ LocalButton("find",22,-540,236,A.Find)
+ LocalButton("close",268,-540,154,function() p:Hide() end)
+ Label("footer",22,-590,630,22,12)
  table.insert(UISpecialFrames,"AzerothCursorOptions")
  p:Hide();A.RefreshOptions()
 end
+
 function A.ToggleOptions()
  A.BuildOptions()
  if A.panel:IsShown() then A.panel:Hide() else
   local w,h=UIParent:GetWidth(),UIParent:GetHeight()
-  A.panel:SetScale(math.min(1,(w-24)/680,(h-24)/600))
+  A.panel:SetScale(math.min(1,(w-24)/680,(h-24)/630))
   A.RefreshOptions();A.panel:Show()
  end
 end
