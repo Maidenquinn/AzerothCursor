@@ -31,6 +31,18 @@ color picker does not enable them. Settings persist through normal game shutdown
   This action enables the marker and can be used in a macro.
 - French/English language switch, draggable settings window and minimap shortcut.
 
+### Upcoming changes on main
+
+Thanks to [Kohrinthian's contribution](https://github.com/Maidenquinn/AzerothCursor/pull/1),
+the settings also offer shortcuts for all nine class colors, with your current
+class first. Changing the addon language updates their labels. Native class colors
+are used when available, with fallback colors if the client omits that table.
+
+The minimap shortcut supports square maps through KeijinUI or `GetMinimapShape`,
+stays outside their edge, and adapts to rectangular sizes or delayed UI styling.
+Collectors that reparent addon buttons keep control of the shortcut. These changes
+are on main for the next release; the linked 1.0.0 player ZIP predates them.
+
 ## Commands
 
 - `/azcursor`: toggle settings.

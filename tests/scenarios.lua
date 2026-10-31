@@ -120,3 +120,4 @@ for _,f in ipairs(objects) do
  if f==A.visual or f==A.preview then assert(f.mouseEnabled==false) end
 end
 print("Azeroth Cursor: native Lua 5.0 loading, geometry, settings, UI and persistence OK")
+dofile("tests/contribution.lua")
