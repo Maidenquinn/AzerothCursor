@@ -5,6 +5,7 @@ function proto:CreateTexture(name,layer)
  local t=CreateFrame("Texture",name,self);t.layer=layer;return t
 end
 function proto:SetTexture(path) self.texture=path end
+function proto:SetTexCoord(l,r,t,b) self.texcoord={l,r,t,b} end
 function proto:SetVertexColor(r,g,b,a) self.rgba={r,g,b,a} end
 function proto:SetAlpha(a) self.alpha=a end
 function proto:EnableMouse(v) self.mouseEnabled=v end
@@ -88,16 +89,28 @@ press(A.picker.cancel);assert(not A.picker:IsShown() and not A.db.enabled);local
 press(A.panel.color);A.picker.channels[3].slider:SetValue(77);assert(A.db.enabled);press(A.picker.accept);near(A.db.rgb[3],77/255);assert(A.db.enabled)
 press(A.panel.color);A.picker.select:SetColorRGB(1,0,0);A.picker:Hide();near(A.db.rgb[3],77/255)
 for _,row in ipairs(A.panel.rows) do
- row.slider:SetValue(row.slider.low);A.Command("off");row.slider:SetValue(row.slider.high);assert(A.db[row.key]==row.slider.high and A.db.enabled)
+ row.slider:SetValue(row.slider.low);A.Command("off");A.db.classIcon=false
+ row.slider:SetValue(row.slider.high)
+ assert(A.db[row.key]==row.slider.high)
+ if row.key=="iconSize" then assert(A.db.classIcon and not A.db.enabled) else assert(A.db.enabled) end
  row.slider:SetValue(row.slider.low);assert(A.db[row.key]==row.slider.low)
 end
+-- Icon-only overlay follows the cursor without enabling the ring marker.
+-- Live overlay stays visible even while options are open.
+A.Command("off");A.db.classIcon=true;A.db.classIconToken="MAGE";A.Apply()
+if not A.panel:IsShown() then A.ToggleOptions() end
+A.Update(.016)
+assert(not A.db.enabled and A.HasOverlay() and A.visual:IsShown() and not A.visual.ring:IsShown())
+A.ToggleOptions();assert(not A.panel:IsShown())
 -- Actual +/- controls honor bounds, not just programmatic command paths.
 local minus,plus=A.panel.rows[1].minus,A.panel.rows[1].plus
 assert(minus and plus)
 for i=1,200 do press(plus) end;assert(A.db.size==160)
 for i=1,200 do press(minus) end;assert(A.db.size==24)
 -- Closing options does not disable the cursor. Disable works while panel is hidden.
-A.Command("on");A.ToggleOptions();assert(not A.panel:IsShown());A.Update(.016);assert(A.visual:IsShown())
+A.Command("on")
+if not A.panel:IsShown() then A.ToggleOptions() end
+A.ToggleOptions();assert(not A.panel:IsShown());A.Update(.016);assert(A.visual:IsShown())
 local before=table.getn(objects)
 for i=1,300 do A.Update(.016) end
 assert(table.getn(objects)==before)

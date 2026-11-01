@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2.0 - 2026-11-01
+
+Optional class icons, built on the circular white masks contributed by
+[Kohrinthian](https://github.com/Kohrinthian) in
+[PR #2](https://github.com/Maidenquinn/AzerothCursor/pull/2). Thank you!
+
+- **Class icon** toggle (**off by default**), independent of the cursor marker:
+  icon only, marker only, or both.
+- All nine class masks (Warrior through Druid), including Rogue / Voleur.
+- Dedicated **class icon size** slider; icons tint with the marker color.
+- With the icon enabled, class buttons also pick which crest to show.
+- **Random** button and `/azcursor random`: marker stays on; randomizes halo,
+  class icon, sliders, color and icon token.
+- Live overlay while options are open; preview keeps the same marker/icon
+  proportions as the real cursor.
+- Texture reload when switching class so the preview and live cursor stay in sync.
+
+### Review trail (same day)
+
+- review.1–.2: optional icon API, independent marker/icon, size slider, layout.
+- review.3: live overlay in options; shared color tint; preview fitting.
+- review.4: Rogue crest added.
+- review.5: Random / Aléatoire.
+- review.6: character-creation atlas trial (reverted).
+- review.7: circular white masks restored; Rogue adapted to match.
+
 ## 1.1.0 - 2026-10-31
 
 - Class-color shortcuts contributed by [Kohrinthian](https://github.com/Kohrinthian)

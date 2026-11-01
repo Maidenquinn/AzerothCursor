@@ -1,11 +1,11 @@
-# Azeroth Cursor 1.1.0
+# Azeroth Cursor 1.2.0
 
 Find your mouse in the middle of spell effects in **Azeroth Survivors** on Windows.
 Standalone Interface 11200 / Lua 5.0 addon. French and English settings.
 
 ## Download and install
 
-Download **AzerothCursor-1.1.0.zip** from the [GitHub release](https://github.com/Maidenquinn/AzerothCursor/releases/tag/v1.1.0).
+Download **AzerothCursor-1.2.0.zip** from the [GitHub release](https://github.com/Maidenquinn/AzerothCursor/releases/tag/v1.2.0).
 Close the game and extract the `AzerothCursor` folder into the active installation's
 `benilla-config/AddOns` folder. Enable the addon if needed and restart the game.
 GitHub's automatic **Source code** ZIP is for developers, not direct installation.
@@ -31,16 +31,22 @@ color picker does not enable them. Settings persist through normal game shutdown
   This action enables the marker and can be used in a macro.
 - French/English language switch, draggable settings window and minimap shortcut.
 
-### Class colors and minimap compatibility
+### Class colors, optional class icon and minimap compatibility
 
-Thanks to [Kohrinthian's contribution](https://github.com/Maidenquinn/AzerothCursor/pull/1),
-the settings also offer shortcuts for all nine class colors, with your current
-class first. Changing the addon language updates their labels. Native class colors
-are used when available, with fallback colors if the client omits that table.
+Thanks to [Kohrinthian](https://github.com/Kohrinthian)
+([PR #1](https://github.com/Maidenquinn/AzerothCursor/pull/1) colors,
+[PR #2](https://github.com/Maidenquinn/AzerothCursor/pull/2) icons),
+settings offer class-color shortcuts (current class first) and an **optional**
+class icon (**off by default**, independent of the ring marker — icon only, marker
+only, or both). All nine circular white masks (including Rogue) tint with the
+marker color. Size is adjustable. Toggle **Class icon** / **Icône de classe**;
+with it on, class buttons also pick the icon. **Random** / **Aléatoire** keeps the
+marker on and randomizes the rest.
 
+Native class colors are preferred, with fallbacks if the client omits that table.
 The minimap shortcut supports square maps through KeijinUI or `GetMinimapShape`,
 stays outside their edge, and adapts to rectangular sizes or delayed UI styling.
-Collectors that reparent addon buttons keep control of the shortcut. These changes are included in the 1.1.0 player ZIP.
+Collectors that reparent addon buttons keep control of the shortcut.
 
 ## Commands
 
@@ -49,6 +55,7 @@ Collectors that reparent addon buttons keep control of the shortcut. These chang
 - `/azcursor native|balanced|raid|minimal`: select a preset.
 - `/azcursor color #RRGGBB`: choose a custom color and enable the marker.
 - `/azcursor find`: locate the cursor.
+- `/azcursor random`: randomize appearance (marker stays on).
 - `/azcursor fr` or `/azcursor en`: choose the settings language.
 - `/azcursor reset`: restore initial settings, including the original cursor.
 
@@ -65,8 +72,9 @@ may remain visible when the mouse leaves the game window.
 
 Only `AzerothCursorDB` is persisted by the normal game cycle. No CVars, game saves,
 combat actions, outgoing messages or other addons' files are modified. No position
-history is retained. All eleven TGA masks are original procedural assets generated
-by `tools/generate_media.py`, using only Python's standard library.
+history is retained. Marker TGAs are original procedural assets from
+`tools/generate_media.py`. Class masks are based on Kohrinthian's PR #2 art
+(Rogue adapted to the same circular white style).
 
 Upgrading from the first 0.1 beta disables its automatic marker once while keeping
 appearance settings. Explicit choices in 0.2 and later are retained.
@@ -87,9 +95,7 @@ migration, controls, minimap placement, automatic activation, strict ColorSelect
 Texture-region arguments, color cancellation and click transparency.
 The builder creates the player ZIP and SHA-256 file in `dist/`.
 
-The maintainer reported the original 1.0 candidate working in game. The 1.1 changes
-passed the expanded Lua 5.0 regression suite; native KeijinUI rendering remains
-to be confirmed in game.
+The maintainer validated the optional class-icon flow in game for 1.2.0.
 Tests simulate FrameXML and do not certify every native rendering path. Further
 testing should check controls, point alignment at different UI scales, spell
 effects, item dragging, mouselook, native menus and persistence.

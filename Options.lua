@@ -1,17 +1,17 @@
 local A=AzerothCursor
 local strings={
- fr={title="Azeroth Cursor",subtitle="Retrouvez votre souris au milieu des effets.",enabled="Repère actif",pulse="Halo animé",yes="Oui",no="Non",
- size="Diamètre du repère",thickness="Épaisseur de l'anneau",opacity="Opacité du repère",halo="Intensité du halo",crosshair="Taille du réticule",dot="Taille du point central",
- balanced="Équilibré",raid="Combat intense",minimal="Discret",preview="APERÇU",color="Choisir la couleur",native="Origine",cancel="Annuler",accept="Valider",red="Rouge",green="Vert",blue="Bleu",miniTip="Clic : options. Glisser : déplacer.",custom="Personnalisée",find="Retrouver le curseur",close="Fermer",
- hint="Le centre indique le point de clic. Le repère laisse passer tous les clics.",footer="/azcursor find : signal lumineux  •  /azcursor off : désactiver",
- detail="Origine : curseur natif seul.\nActivez le repère ou choisissez un préréglage.",
+ fr={title="Azeroth Cursor",subtitle="Retrouvez votre souris au milieu des effets.",enabled="Repère actif",pulse="Halo animé",classIcon="Icône de classe",yes="Oui",no="Non",
+ size="Diamètre du repère",thickness="Épaisseur de l'anneau",opacity="Opacité",halo="Intensité du halo",crosshair="Taille du réticule",dot="Taille du point central",iconSize="Taille de l'icône",
+ balanced="Équilibré",raid="Combat intense",minimal="Discret",random="Aléatoire",preview="APERÇU",color="Choisir la couleur",native="Origine",cancel="Annuler",accept="Valider",red="Rouge",green="Vert",blue="Bleu",miniTip="Clic : options. Glisser : déplacer.",custom="Personnalisée",find="Retrouver le curseur",close="Fermer",
+ hint="Repère et icône sont indépendants : l'un, l'autre, ou les deux. Les clics passent au travers.",footer="/azcursor find : signal  •  /azcursor random : hasard  •  /azcursor off : off",
+ detail="Origine : curseur natif.\nRepère et icône de classe sont optionnels.\nAléatoire : tout sauf repère forcé actif.",
  Cyan="Cyan",Magenta="Magenta",Lime="Vert citron",Gold="Or",White="Blanc",Orange="Orange",Red="Rouge",Blue="Bleu",
  WARRIOR="Guerrier", PALADIN="Paladin", HUNTER="Chasseur", ROGUE="Voleur", PRIEST="Prêtre", SHAMAN="Chaman", MAGE="Mage", WARLOCK="Démoniste", DRUID="Druide"},
- en={title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",yes="On",no="Off",
- size="Marker diameter",thickness="Ring thickness",opacity="Marker opacity",halo="Halo intensity",crosshair="Crosshair size",dot="Center dot size",
- balanced="Balanced",raid="Intense combat",minimal="Minimal",preview="PREVIEW",color="Choose color",native="Original",cancel="Cancel",accept="Apply",red="Red",green="Green",blue="Blue",miniTip="Click: settings. Drag: move.",custom="Custom",find="Locate cursor",close="Close",
- hint="The center marks the click point. All clicks pass through the marker.",footer="/azcursor find: light beacon  •  /azcursor off: disable",
- detail="Original: native cursor only.\nEnable the marker or choose a preset.",
+ en={title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",classIcon="Class icon",yes="On",no="Off",
+ size="Marker diameter",thickness="Ring thickness",opacity="Opacity",halo="Halo intensity",crosshair="Crosshair size",dot="Center dot size",iconSize="Class icon size",
+ balanced="Balanced",raid="Intense combat",minimal="Minimal",random="Random",preview="PREVIEW",color="Choose color",native="Original",cancel="Cancel",accept="Apply",red="Red",green="Green",blue="Blue",miniTip="Click: settings. Drag: move.",custom="Custom",find="Locate cursor",close="Close",
+ hint="Marker and class icon are independent: either, or both. All clicks pass through.",footer="/azcursor find: beacon  •  /azcursor random: shuffle  •  /azcursor off: off",
+ detail="Original: native cursor.\nMarker and class icon are optional.\nRandom: everything else, marker stays on.",
  Cyan="Cyan",Magenta="Magenta",Lime="Lime",Gold="Gold",White="White",Orange="Orange",Red="Red",Blue="Blue",
  WARRIOR="Warrior", PALADIN="Paladin", HUNTER="Hunter", ROGUE="Rogue", PRIEST="Priest", SHAMAN="Shaman", MAGE="Mage", WARLOCK="Warlock", DRUID="Druid"}
 }
@@ -192,13 +192,29 @@ function A.RefreshOptions()
  end
  p.enabled.text:SetText(A.L("enabled").." : "..A.L(A.db.enabled and "yes" or "no"))
  p.pulse.text:SetText(A.L("pulse").." : "..A.L(A.db.pulse and "yes" or "no"))
+ p.classIcon.text:SetText(A.L("classIcon").." : "..A.L(A.db.classIcon and "yes" or "no"))
  local color=A.db.rgb and A.L("custom") or A.L(A.colors[A.db.color][1])
  p.colorName:SetText(color);p.color.text:SetText(A.L("color"))
  p.swatch:SetVertexColor(A.Color())
  p.language.text:SetText(A.db.language=="fr" and "English" or "Français")
- A.Style(A.preview)
- A.preview:SetScale(math.min(1,180/math.max(A.db.size*1.8,A.db.crosshair*2+16)))
- if A.db.enabled then A.preview:Show();p.nativeCursor:Hide() else A.preview:Hide();p.nativeCursor:Show() end
+ A.StylePreview()
+ if A.HasOverlay() then A.preview:Show();p.nativeCursor:Hide() else A.preview:Hide();p.nativeCursor:Show() end
+end
+
+-- One uniform scale so preview keeps the same marker/icon proportions as the live cursor.
+function A.StylePreview()
+ if not A.preview then return end
+ A.preview:SetScale(1)
+ local box=168
+ local span=1
+ if A.db.enabled then
+  span=math.max(span,A.db.size*1.8,A.db.crosshair*2+16)
+ end
+ if A.db.classIcon and A.ClassIconPath(A.ClassIconToken()) then
+  span=math.max(span,A.db.iconSize)
+ end
+ local fit=math.min(1,box/span)
+ A.Style(A.preview,fit,fit)
 end
 
 A.classOrder={"WARRIOR","PALADIN","HUNTER","ROGUE","PRIEST","SHAMAN","MAGE","WARLOCK","DRUID"}
@@ -243,14 +259,23 @@ local function ClassButton(p,x,y,w,h,class)
  b.text=Text(b,4,-4,w-8,h-4,11);b.text:SetJustifyH("CENTER")
  b.text:SetText(A.L(class));b.text:SetTextColor(r,g,blue)
  b.labelEntry={b.text,class};table.insert(p.labels,b.labelEntry);table.insert(p.classButtons,b)
- b:SetScript("OnClick",function() A.db.rgb={A.ClassColor(b.class)};A.db.enabled=true;A.Apply() end)
+ b:SetScript("OnClick",function()
+  A.db.rgb={A.ClassColor(b.class)}
+  -- Icon mode: stamp art when available; never force the ring marker on.
+  if A.db.classIcon then
+   if A.ClassIconPath(b.class) then A.db.classIconToken=b.class end
+  else
+   A.db.enabled=true
+  end
+  A.Apply()
+ end)
  return b
 end
 
 function A.BuildOptions()
  if A.panel then return end
  local p=CreateFrame("Frame","AzerothCursorOptions",UIParent);A.panel=p
- p:SetWidth(680);p:SetHeight(630);p:SetPoint("CENTER",UIParent,"CENTER",0,0)
+ p:SetWidth(680);p:SetHeight(690);p:SetPoint("CENTER",UIParent,"CENTER",0,0)
  p:SetFrameStrata("DIALOG");p:EnableMouse(true);p:SetMovable(true);p:SetClampedToScreen(true)
  Back(p,.025,.045,.06);p.labels={};p.rows={}
  local function Label(key,x,y,w,h,size)
@@ -270,25 +295,34 @@ function A.BuildOptions()
  LocalButton("raid",222,-86,112,function() A.Preset("raid") end)
  LocalButton("minimal",342,-86,80,function() A.Preset("minimal") end)
  p.language=Button(p,528,-86,130,32,function() A.db.language=A.db.language=="fr" and "en" or "fr";A.Apply() end)
- p.enabled=Button(p,22,-132,195,32,function() A.db.enabled=not A.db.enabled;A.Apply() end)
- p.pulse=Button(p,227,-132,195,32,function() A.db.pulse=not A.db.pulse;A.Apply() end)
- local specs={{"size",24,160,4,""},{"thickness",1,3,1,""},{"opacity",20,100,5," %"},
-  {"halo",0,100,5," %"},{"crosshair",0,100,4,""},{"dot",0,24,1,""}}
+ -- Marker toggles stay left of the preview column (starts at x=438).
+ p.enabled=Button(p,22,-132,190,32,function() A.db.enabled=not A.db.enabled;A.Apply() end)
+ p.pulse=Button(p,222,-132,190,32,function() A.db.pulse=not A.db.pulse;A.Apply() end)
+ p.classIcon=Button(p,22,-170,190,32,function() A.db.classIcon=not A.db.classIcon;A.Apply() end)
+ LocalButton("random",222,-170,190,function() A.Randomize() end)
+ local function TouchMarker(key,v)
+  A.db[key]=v
+  if key=="iconSize" then A.db.classIcon=true else A.db.enabled=true end
+  A.Apply()
+ end
+ local specs={{"size",24,160,""},{"thickness",1,3,""},{"opacity",20,100," %"},
+  {"halo",0,100," %"},{"crosshair",0,100,""},{"dot",0,24,""},{"iconSize",8,120,""}}
  for i,spec in ipairs(specs) do
-  local key,low,high,step,suffix=unpack(spec);local y=-179-(i-1)*46
-  local row={key=key,suffix=suffix,label=Label(key,22,y,290,23),value=Text(p,330,y,68,23,13)}
+  local key,low,high,suffix=unpack(spec);local y=-214-(i-1)*42
+  local row={key=key,suffix=suffix,label=Label(key,22,y,290,20),value=Text(p,330,y,68,20,13)}
   row.value:SetJustifyH("RIGHT")
-  row.minus=Button(p,22,y-21,26,24,function() A.db[key]=math.max(low,A.db[key]-1);A.db.enabled=true;A.Apply() end);row.minus.text:SetText("-")
-  row.plus=Button(p,372,y-21,26,24,function() A.db[key]=math.min(high,A.db[key]+1);A.db.enabled=true;A.Apply() end);row.plus.text:SetText("+")
-  row.slider=A.Slider(p,60,y-25,294,low,high,function(v)
-   if not p.refreshing then A.db[key]=v;A.db.enabled=true;A.Apply() end
+  row.minus=Button(p,22,y-19,26,22,function() TouchMarker(key,math.max(low,A.db[key]-1)) end);row.minus.text:SetText("-")
+  row.plus=Button(p,372,y-19,26,22,function() TouchMarker(key,math.min(high,A.db[key]+1)) end);row.plus.text:SetText("+")
+  row.slider=A.Slider(p,60,y-22,294,low,high,function(v)
+   if not p.refreshing then TouchMarker(key,v) end
   end)
   table.insert(p.rows,row)
  end
+ -- Caption sits above the stage so the crosshair cannot cover "APERÇU".
+ local caption=Text(p,438,-114,220,18,12);caption:SetText(" ");table.insert(p.labels,{caption,"preview"})
  local stage=CreateFrame("Frame",nil,p);stage:SetPoint("TOPLEFT",p,"TOPLEFT",438,-132);stage:SetWidth(220);stage:SetHeight(220)
  Back(stage,.06,.09,.12)
- local caption=Text(stage,12,-10,196,22,12);caption:SetText(" ");table.insert(p.labels,{caption,"preview"})
- A.preview=A.CreateVisual(nil,stage);A.preview:SetPoint("CENTER",stage,"CENTER",0,-8)
+ A.preview=A.CreateVisual(nil,stage);A.preview:SetPoint("CENTER",stage,"CENTER",0,0)
  p.nativeCursor=stage:CreateTexture(nil,"OVERLAY");p.nativeCursor:SetTexture("Interface\\Cursor\\Point")
  p.nativeCursor:SetWidth(32);p.nativeCursor:SetHeight(32);p.nativeCursor:SetPoint("CENTER",stage,"CENTER",12,-20)
  p.colorName=Text(p,438,-365,220,24,14);p.colorName:SetJustifyH("CENTER")
@@ -296,8 +330,8 @@ function A.BuildOptions()
  p.swatch=p.color:CreateTexture(nil,"OVERLAY");p.swatch:SetTexture("Interface\\Buttons\\WHITE8X8")
  p.swatch:SetWidth(16);p.swatch:SetHeight(16);p.swatch:SetPoint("LEFT",p.color,"LEFT",8,0)
  p.color.text:SetWidth(182);p.color.text:ClearAllPoints();p.color.text:SetPoint("TOPLEFT",p.color,"TOPLEFT",30,-7)
- Label("detail",438,-435,220,42,11)
- 
+ Label("detail",438,-435,220,48,11)
+
  -- Current class first, followed by every other class exactly once.
  p.classButtons={}
  local playerClass=A.PlayerClass() or "WARRIOR"
@@ -305,16 +339,16 @@ function A.BuildOptions()
  for _,class in ipairs(A.classOrder) do
   if class~=playerClass then table.insert(otherClasses,class) end
  end
- ClassButton(p,448,-478,200,22,playerClass)
+ ClassButton(p,448,-490,200,22,playerClass)
  for i,class in ipairs(otherClasses) do
   local row,col=math.floor((i-1)/2),math.mod(i-1,2)
-  ClassButton(p,448+col*105,-505-row*26,95,22,class)
+  ClassButton(p,448+col*105,-517-row*26,95,22,class)
  end
 
- Label("hint",22,-461,390,42,12)
- LocalButton("find",22,-540,236,A.Find)
- LocalButton("close",268,-540,154,function() p:Hide() end)
- Label("footer",22,-590,400,32,11)
+ Label("hint",22,-520,400,36,12)
+ LocalButton("find",22,-570,236,A.Find)
+ LocalButton("close",268,-570,154,function() p:Hide() end)
+ Label("footer",22,-620,400,32,11)
  table.insert(UISpecialFrames,"AzerothCursorOptions")
  p:Hide();A.RefreshOptions()
 end
@@ -323,7 +357,7 @@ function A.ToggleOptions()
  A.BuildOptions()
  if A.panel:IsShown() then A.panel:Hide() else
   local w,h=UIParent:GetWidth(),UIParent:GetHeight()
-  A.panel:SetScale(math.min(1,(w-24)/680,(h-24)/630))
+  A.panel:SetScale(math.min(1,(w-24)/680,(h-24)/690))
   A.RefreshOptions();A.panel:Show()
  end
 end

@@ -80,4 +80,69 @@ A.db.minimapAngle=45;A.InitDB();assert(A.db.minimapAngle==45)
 if A.panel:IsShown() then A.ToggleOptions() end
 UIParent:SetWidth(640);UIParent:SetHeight(480);A.ToggleOptions()
 assert(A.panel:GetHeight()*A.panel:GetScale()<=456)
-print("PR #1: nine class colors, FR/EN, square/round/rectangular maps, persistence and collector compatibility OK")
+-- Optional class icons: off by default; all nine classes have art.
+assert(A.db.classIcon==false and A.db.iconSize==28)
+assert(A.ClassIconPath("WARRIOR") and A.ClassIconPath("ROGUE"))
+A.Command("on");A.Style(A.visual)
+assert(not A.visual.classIcon:IsShown() and A.visual.dot:IsShown())
+click(A.panel.classIcon);assert(A.db.classIcon)
+UnitClass=function() return "Guerrier","WARRIOR" end
+A.Style(A.visual);assert(A.visual.classIcon:IsShown() and not A.visual.dot:IsShown())
+assert(string.find(A.visual.classIcon.texture,"war.tga",1,true))
+assert(A.visual.classIcon:GetWidth()==28)
+A.db.iconSize=48;A.Style(A.visual);assert(A.visual.classIcon:GetWidth()==48)
+-- Masks tint with the marker color.
+A.db.rgb={.2,.4,.6};A.Style(A.visual)
+near(A.visual.classIcon.rgba[1],.2);near(A.visual.classIcon.rgba[2],.4);near(A.visual.classIcon.rgba[3],.6)
+-- Preview: one scale for marker+icon so proportions match the live cursor.
+A.db.enabled=true;A.db.iconSize=100;A.db.size=64;A.StylePreview()
+local ratio64=A.preview.ring:GetWidth()/A.preview.classIcon:GetWidth()
+A.db.size=160;A.StylePreview()
+local ratio160=A.preview.ring:GetWidth()/A.preview.classIcon:GetWidth()
+near(ratio160,160/100) -- live ratio preserved in the fitted preview
+near(ratio64,64/100)
+assert(A.preview.ring:GetWidth()<A.db.size)
+assert(A.preview.classIcon:GetWidth()<A.db.iconSize)
+-- Icon-only: marker off, icon on — ring hidden, icon still shown.
+A.db.enabled=false;A.Style(A.visual)
+assert(A.HasOverlay() and A.visual.classIcon:IsShown() and not A.visual.ring:IsShown())
+click(A.panel.classButtons[1]) -- current class; must not force the marker back on
+assert(not A.db.enabled and A.db.classIcon)
+local rogue
+for _,b in ipairs(A.panel.classButtons) do if b.class=="ROGUE" then rogue=b end end
+assert(rogue);A.db.classIconToken="WARRIOR";click(rogue)
+assert(A.db.rgb and not A.db.enabled);assert(A.db.classIconToken=="ROGUE")
+A.Style(A.visual);assert(string.find(A.visual.classIcon.texture,"rogue.tga",1,true))
+local mage
+for _,b in ipairs(A.panel.classButtons) do if b.class=="MAGE" then mage=b end end
+click(mage);assert(A.db.classIconToken=="MAGE")
+A.Style(A.visual);assert(string.find(A.visual.classIcon.texture,"mage.tga",1,true))
+-- Class icon toggle is on its own left-column row (x=22,w=190), clear of preview x=438.
+local _,_,_,cx=A.panel.classIcon:GetPoint(1)
+assert(cx+A.panel.classIcon:GetWidth()<=438)
+click(A.panel.classIcon);assert(not A.db.classIcon)
+A.Style(A.visual);assert(not A.visual.classIcon:IsShown() and not A.HasOverlay())
+-- Preference survives reload; invalid tokens are dropped.
+A.db.classIcon=true;A.db.classIconToken="MAGE";A.db.iconSize=55;AzerothCursorDB=A.db
+A.InitDB();assert(A.db.classIcon and A.db.classIconToken=="MAGE" and A.db.iconSize==55)
+AzerothCursorDB={schema=2,classIcon=true,classIconToken="ROGUE"}
+A.InitDB();assert(A.db.classIcon and A.db.classIconToken=="ROGUE")
+AzerothCursorDB={schema=2,classIcon=true,classIconToken="NOTACLASS"}
+A.InitDB();assert(A.db.classIcon and A.db.classIconToken==nil)
+-- Randomize always enables the marker and stays within slider bounds.
+math.randomseed(42)
+A.db.enabled=false;A.Randomize()
+assert(A.db.enabled)
+assert(A.db.size>=24 and A.db.size<=160)
+assert(A.db.thickness>=1 and A.db.thickness<=3)
+assert(A.db.opacity>=20 and A.db.opacity<=100)
+assert(A.db.iconSize>=8 and A.db.iconSize<=120)
+assert(type(A.db.pulse)=="boolean" and type(A.db.classIcon)=="boolean")
+if A.db.rgb then
+ near(math.max(0,math.min(1,A.db.rgb[1])),A.db.rgb[1])
+else
+ assert(A.db.color>=1 and A.db.color<=8)
+end
+if A.db.classIcon then assert(A.classIcons[A.db.classIconToken]) end
+A.Command("random");assert(A.db.enabled)
+print("PR #1/#2: class colors + optional/independent class icons, FR/EN, maps OK")

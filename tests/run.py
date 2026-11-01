@@ -24,11 +24,16 @@ for entry in toc.splitlines():
         subprocess.run([lua, '-e', f'assert(loadfile("{entry}"))'], cwd=root, check=True)
 subprocess.run([lua, 'tests/scenarios.lua'], cwd=root, check=True)
 assets = list((root/'Media').glob('*.tga'))
-assert len(assets) == 11
+assert len(assets) == 20, len(assets)
+pixel = 18 + 128 * 128 * 4
 for path in assets:
     data = path.read_bytes()
-    assert len(data) == 18 + 128*128*4
+    # Core rings are exact; class icons may include a TRUEVISION footer.
+    assert len(data) == pixel or (len(data) == pixel + 26 and data.endswith(b'TRUEVISION-XFILE.\x00')), path
+    assert data[2] == 2 and data[16] == 32
     assert struct.unpack_from('<HH', data, 12) == (128, 128)
-    alpha = data[21::4]
+    alpha = data[21:pixel:4]
     assert min(alpha) == 0 and max(alpha) > 100, path
-print(f'{version}: TOC, native Lua 5.0 and 11 TGA assets OK')
+for name in ('war', 'pal', 'hunt', 'rogue', 'priest', 'sham', 'mage', 'lock', 'druid'):
+    assert (root / 'Media' / f'{name}.tga').is_file()
+print(f'{version}: TOC, native Lua 5.0 and 20 TGA assets OK')
