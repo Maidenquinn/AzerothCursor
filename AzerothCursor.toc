@@ -6,4 +6,5 @@
 ## SavedVariables: AzerothCursorDB
 
 Core.lua
+Profiles.lua
 Options.lua
