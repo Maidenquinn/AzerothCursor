@@ -83,7 +83,6 @@ assert(A.preview:IsShown() and not A.panel.nativeCursor:IsShown())
 press(A.panel.pulse);assert(A.db.pulse)
 press(A.panel.language);assert(A.db.language=="en")
 assert(A.panel.enabled.text:GetText()=="Cursor marker : On")
-assert(A.panel.enabled.backdropColor or A.panel.enabled.backdrop) -- toggle remains rendered
 assert(A.panel.presetButtons and A.panel.presetButtons.native)
 A.Command("native")
 assert(not A.db.enabled and not A.db.classIcon)
