@@ -181,6 +181,17 @@ function A.CreateMinimap()
  b.Place()
 end
 
+-- Cursor Studio V2: communicate state through color as well as labels.
+local function ToggleAppearance(button,active)
+ if not button then return end
+ if active then
+  Back(button,.07,.27,.25)
+  button.text:SetTextColor(.72,1,.88)
+ else
+  Back(button,.08,.15,.18)
+  button.text:SetTextColor(1,1,1)
+ end
+end
 function A.RefreshOptions()
  if not A.panel then return end
  local p=A.panel
@@ -193,10 +204,19 @@ function A.RefreshOptions()
  p.enabled.text:SetText(A.L("enabled").." : "..A.L(A.db.enabled and "yes" or "no"))
  p.pulse.text:SetText(A.L("pulse").." : "..A.L(A.db.pulse and "yes" or "no"))
  p.classIcon.text:SetText(A.L("classIcon").." : "..A.L(A.db.classIcon and "yes" or "no"))
+ ToggleAppearance(p.enabled,A.db.enabled)
+ ToggleAppearance(p.pulse,A.db.pulse)
+ ToggleAppearance(p.classIcon,A.db.classIcon)
  local color=A.db.rgb and A.L("custom") or A.L(A.colors[A.db.color][1])
  p.colorName:SetText(color);p.color.text:SetText(A.L("color"))
  p.swatch:SetVertexColor(A.Color())
  p.language.text:SetText(A.db.language=="fr" and "English" or "Français")
+ if p.presetButtons then
+  for name,button in pairs(p.presetButtons) do
+   local active=name=="native" and not A.HasOverlay()
+   ToggleAppearance(button,active)
+  end
+ end
  A.StylePreview()
  if A.HasOverlay() then A.preview:Show();p.nativeCursor:Hide() else A.preview:Hide();p.nativeCursor:Show() end
 end
@@ -290,10 +310,11 @@ function A.BuildOptions()
  local function LocalButton(key,x,y,w,fn)
   local b=Button(p,x,y,w,32,fn);table.insert(p.labels,{b.text,key});return b
  end
- LocalButton("native",22,-86,88,function() A.Preset("native") end)
- LocalButton("balanced",118,-86,96,function() A.Preset("balanced") end)
- LocalButton("raid",222,-86,112,function() A.Preset("raid") end)
- LocalButton("minimal",342,-86,80,function() A.Preset("minimal") end)
+ p.presetButtons={}
+ p.presetButtons.native=LocalButton("native",22,-86,88,function() A.Preset("native") end)
+ p.presetButtons.balanced=LocalButton("balanced",118,-86,96,function() A.Preset("balanced") end)
+ p.presetButtons.raid=LocalButton("raid",222,-86,112,function() A.Preset("raid") end)
+ p.presetButtons.minimal=LocalButton("minimal",342,-86,80,function() A.Preset("minimal") end)
  p.language=Button(p,528,-86,130,32,function() A.db.language=A.db.language=="fr" and "en" or "fr";A.Apply() end)
  -- Marker toggles stay left of the preview column (starts at x=438).
  p.enabled=Button(p,22,-132,190,32,function() A.db.enabled=not A.db.enabled;A.Apply() end)
