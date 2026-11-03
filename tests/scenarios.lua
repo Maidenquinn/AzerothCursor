@@ -62,8 +62,10 @@ looking=true;A.Update(.016);assert(not A.visual:IsShown())
 looking=false;A.Update(.016);assert(A.visual:IsShown())
 cursorX=-1;A.Update(.016);assert(not A.visual:IsShown())
 cursorX=300;A.Command("off");A.Update(.016);assert(not A.visual:IsShown())
-A.Command("find");A.Update(.1);assert(A.visual:IsShown() and A.visual.beacon:IsShown())
-A.Update(1.3);assert(not A.visual.beacon:IsShown())
+A.Command("find");assert(not A.db.enabled and A.findOnly)
+A.Update(.1);assert(A.visual:IsShown() and A.visual.beacon:IsShown())
+A.Update(1.3);assert(not A.visual.beacon:IsShown() and not A.findOnly and not A.visual:IsShown())
+assert(not A.db.enabled) -- Locate must not persistently enable the marker.
 A.Command("raid");assert(A.db.size==96 and A.db.thickness==3 and A.db.color==2)
 A.Command("color #1234FF");local r,g,b=A.Color();near(r,18/255);near(g,52/255);near(b,1)
 A.Command("minimal");assert(not A.db.rgb and A.db.crosshair==0)
@@ -102,6 +104,7 @@ if not A.panel:IsShown() then A.ToggleOptions() end
 A.Update(.016)
 assert(not A.db.enabled and A.HasOverlay() and A.visual:IsShown() and not A.visual.ring:IsShown())
 A.ToggleOptions();assert(not A.panel:IsShown())
+A.Command("off");assert(not A.db.enabled and not A.db.classIcon and not A.HasOverlay())
 -- Actual +/- controls honor bounds, not just programmatic command paths.
 local minus,plus=A.panel.rows[1].minus,A.panel.rows[1].plus
 assert(minus and plus)
