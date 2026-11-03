@@ -90,7 +90,7 @@ local function Size(t,n) t:SetWidth(n);t:SetHeight(n) end
 -- fitMarker / fitIcon scale the marker stack and class icon (preview uses one shared fit).
 function A.Style(f,fitMarker,fitIcon)
  local db=A.db;local r,g,b=A.Color()
- local marker=db.enabled
+ local marker=db.enabled or (f==A.visual and A.findOnly)
  local path=db.classIcon and A.ClassIconPath(A.ClassIconToken()) or nil
  fitMarker=A.Number(fitMarker,1);if fitMarker<=0 then fitMarker=1 end
  fitIcon=A.Number(fitIcon,1);if fitIcon<=0 then fitIcon=1 end
@@ -134,7 +134,7 @@ function A.Apply()
  if not A.visual then return end
  A.Style(A.visual)
  if A.preview and A.StylePreview then A.StylePreview() elseif A.preview then A.Style(A.preview) end
- if not A.HasOverlay() then A.visual:Hide();A.findRemaining=0 end
+ if not A.HasOverlay() and not A.findOnly then A.visual:Hide();A.findRemaining=0 end
  if A.RefreshOptions then A.RefreshOptions() end
 end
 function A.Preset(name)
@@ -175,15 +175,16 @@ function A.Randomize()
  A.Apply()
 end
 function A.Find()
- -- Locate works with marker and/or class icon; briefly ensure an overlay is visible.
- if not A.HasOverlay() then A.db.enabled=true end
- A.findRemaining=1.2;A.Apply()
+ -- Locate is temporary: never change the saved marker/icon preferences.
+ A.findRemaining=1.2
+ A.findOnly=not A.HasOverlay()
+ A.Apply()
 end
 function A.Update(dt)
  dt=math.max(0,A.Number(dt,0));A.time=(A.time or 0)+dt
  A.findRemaining=math.max(0,(A.findRemaining or 0)-dt)
  local f=A.visual
- if not A.HasOverlay() or not GetCursorPosition or (IsMouselooking and IsMouselooking()) then f:Hide();return end
+ if not (A.HasOverlay() or A.findOnly) or not GetCursorPosition or (IsMouselooking and IsMouselooking()) then f:Hide();return end
  local x,y=GetCursorPosition()
  if type(x)~="number" or type(y)~="number" then f:Hide();return end
  local scale=UIParent:GetEffectiveScale() or 1
@@ -201,7 +202,7 @@ function A.Update(dt)
   local base=A.db.enabled and A.db.size or A.db.iconSize
   Size(f.beacon,base+180*(1-progress))
   f.beacon:SetVertexColor(1,1,1,1-progress*.7);f.beacon:Show()
- else f.beacon:Hide() end
+ else f.beacon:Hide();A.findOnly=false;A.Style(f);if not A.HasOverlay() then f:Hide() end end
 end
 function A.Say(text)
  if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff00ffffAzeroth Cursor|r: "..text) end
@@ -209,7 +210,7 @@ end
 function A.Command(message)
  local msg=string.lower(message or "")
  if msg=="on" then A.db.enabled=true;A.Apply()
- elseif msg=="off" then A.db.enabled=false;A.Apply()
+ elseif msg=="off" then A.db.enabled=false;A.db.classIcon=false;A.findOnly=false;A.Apply()
  elseif msg=="find" then A.Find()
  elseif msg=="random" then A.Randomize()
  elseif msg=="native" or msg=="balanced" or msg=="raid" or msg=="minimal" then A.Preset(msg)
