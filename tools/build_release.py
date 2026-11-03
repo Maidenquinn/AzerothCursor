@@ -12,9 +12,9 @@ args = parser.parse_args()
 version = re.search(r'## Version: (\S+)', (root/'AzerothCursor.toc').read_text()).group(1)
 args.output.mkdir(parents=True, exist_ok=True)
 archive = args.output/f'AzerothCursor-{version}.zip'
-files = [root/'AzerothCursor.toc', root/'Core.lua', root/'Options.lua', root/'README.md']
+files = [root/'AzerothCursor.toc', root/'Core.lua', root/'Options.lua', root/'Profiles.lua', root/'README.md']
 files += sorted((root/'Media').glob('*.tga'))
-assert len(files) == 24, len(files)  # 4 sources + 11 rings + 9 class masks
+assert len(files) == 25, len(files)  # 5 sources + 11 rings + 9 class masks
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
     for path in sorted(files):
         info = zipfile.ZipInfo('AzerothCursor/'+path.relative_to(root).as_posix(), (2026, 11, 1, 0, 0, 0))
@@ -22,7 +22,7 @@ with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
         info.external_attr = 0o100644 << 16
         z.writestr(info, path.read_bytes())
 with zipfile.ZipFile(archive) as z:
-    assert z.testzip() is None and len(z.namelist()) == 24
+    assert z.testzip() is None and len(z.namelist()) == 25
 digest = hashlib.sha256(archive.read_bytes()).hexdigest()
 archive.with_suffix('.zip.sha256').write_text(digest+'  '+archive.name+'\n', encoding='ascii')
 print(archive)
