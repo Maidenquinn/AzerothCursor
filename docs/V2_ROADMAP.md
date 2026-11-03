@@ -28,9 +28,9 @@ The stable v1.2.0 release and main branch are not modified by this work.
 - [ ] Optimize static texture updates.
 
 ## Lot 4 - profiles
-- [ ] Save, rename, duplicate and delete.
+- [x] Local save/load/delete/list backend (12 bounded profiles).\n- [ ] Rename and duplicate through UI.
 - [ ] Safe import/export with bounded validation.
-- [ ] Versioned migration.
+- [x] Preserve profile library across existing DB initialization.\n- [ ] Explicit versioned profile migration and import/export validation.
 
 ## Lot 5 - contextual effects
 - [ ] Research supported game events before implementing automation.
