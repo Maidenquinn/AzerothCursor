@@ -150,11 +150,7 @@ function A.Preset(name)
  A.db.rgb=nil;A.db.enabled=true;A.Apply()
 end
 function A.Randomize()
- -- Always keep the marker on; randomize the rest of the look.
- if type(GetTime)=="function" then
-  local t=GetTime()
-  if type(t)=="number" then math.randomseed(math.mod(math.floor(t*100000),2147483646)+1) end
- end
+ -- Never reseed Lua's shared PRNG: other addons may rely on its state.
  local db=A.db
  db.enabled=true
  db.pulse=math.random(0,1)==1
@@ -163,7 +159,7 @@ function A.Randomize()
   if key~="color" then db[key]=math.random(range[1],range[2]) end
  end
  if math.random(0,1)==1 then
-  db.rgb={math.random(),math.random(),math.random()}
+  db.rgb={math.random(40,255)/255,math.random(40,255)/255,math.random(40,255)/255}
  else
   db.rgb=nil;db.color=math.random(1,8)
  end
@@ -183,6 +179,9 @@ end
 function A.Update(dt)
  dt=math.max(0,A.Number(dt,0));A.time=(A.time or 0)+dt
  A.findRemaining=math.max(0,(A.findRemaining or 0)-dt)
+ if A.findRemaining==0 and A.findOnly then
+  A.findOnly=false;A.Style(A.visual)
+ end
  local f=A.visual
  if not (A.HasOverlay() or A.findOnly) or not GetCursorPosition or (IsMouselooking and IsMouselooking()) then f:Hide();return end
  local x,y=GetCursorPosition()
@@ -202,7 +201,7 @@ function A.Update(dt)
   local base=A.db.enabled and A.db.size or A.db.iconSize
   Size(f.beacon,base+180*(1-progress))
   f.beacon:SetVertexColor(1,1,1,1-progress*.7);f.beacon:Show()
- else f.beacon:Hide();A.findOnly=false;A.Style(f);if not A.HasOverlay() then f:Hide() end end
+ else f.beacon:Hide();if not A.HasOverlay() then f:Hide() end end
 end
 function A.Say(text)
  if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff00ffffAzeroth Cursor|r: "..text) end
