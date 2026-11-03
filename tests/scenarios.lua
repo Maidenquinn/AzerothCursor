@@ -44,12 +44,19 @@ function GetCursorPosition() return cursorX,cursorY end
 function IsMouselooking() return looking end
 -- Remove modern convenience functions to catch accidental Lua 5.1+ usage.
 string.match=nil;string.gmatch=nil
-dofile("Core.lua");dofile("Options.lua")
+dofile("Core.lua");dofile("Profiles.lua");dofile("Options.lua")
 local A=AzerothCursor
 event="ADDON_LOADED";arg1="OtherAddon";A.driver.scripts.OnEvent();assert(not A.db)
 arg1="AzerothCursor";A.driver.scripts.OnEvent()
 assert(not A.db.enabled and A.db.size==64 and A.db.language=="fr")
 assert(AzerothCursorDB==A.db and SlashCmdList.AZEROTHCURSOR)
+assert(A.SaveProfile("Default"))
+assert(table.getn(A.ProfileNames())==1)
+A.db.size=100
+assert(A.LoadProfile("Default") and A.db.size==64)
+assert(A.DeleteProfile("Default") and table.getn(A.ProfileNames())==0)
+assert(not A.SaveProfile("bad/name"))
+
 local count=table.getn(objects);event="PLAYER_LOGIN";A.driver.scripts.OnEvent();assert(count==table.getn(objects))
 A.Update(.016);assert(not A.visual:IsShown());A.Command("on");A.Update(.016);assert(A.visual:IsShown());near(A.visual:GetCenter(),cursorX)
 local x,y=A.visual:GetCenter();near(x,350);near(y,440)
