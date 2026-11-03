@@ -58,6 +58,8 @@ function A.InitDB()
  -- keeping the user's appearance settings for when they explicitly enable it.
  if old.schema~=2 then db.enabled=false end
  db.schema=2
+ -- Profiles are validated on use, and preserved across SavedVariables migrations.
+ db.profiles=type(old.profiles)=="table" and old.profiles or {}
  db.minimapAngle=math.mod(A.Number(old.minimapAngle,245),360)
  AzerothCursorDB=db;A.db=db
 end
@@ -211,6 +213,13 @@ function A.Command(message)
  if msg=="on" then A.db.enabled=true;A.Apply()
  elseif msg=="off" then A.db.enabled=false;A.db.classIcon=false;A.findOnly=false;A.Apply()
  elseif msg=="find" then A.Find()
+ elseif string.sub(msg,1,8)=="profile " then
+  local _,_,action,name=string.find(msg,"^profile%s+(%a+)%s+([%w _%-]+)$")
+  if action=="save" and A.SaveProfile(name) then A.Say("Profile saved: "..name)
+  elseif action=="load" and A.LoadProfile(name) then A.Say("Profile loaded: "..name)
+  elseif action=="delete" and A.DeleteProfile(name) then A.Say("Profile deleted: "..name)
+  elseif msg=="profile list" then A.Say("Profiles: "..table.concat(A.ProfileNames(),", "))
+  else A.Say("Usage: /azcursor profile save|load|delete NAME, or profile list") end
  elseif msg=="random" then A.Randomize()
  elseif msg=="native" or msg=="balanced" or msg=="raid" or msg=="minimal" then A.Preset(msg)
  elseif msg=="reset" then AzerothCursorDB={language=A.db.language};A.InitDB();A.Apply()
