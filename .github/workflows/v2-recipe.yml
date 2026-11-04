@@ -1,0 +1,34 @@
+name: V2 recipe build
+on:
+  push:
+    branches: [feat/v2-cursor-studio]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native Lua 5.0
+        run: |
+          curl -fL --retry 3 https://www.lua.org/ftp/lua-5.0.3.tar.gz -o /tmp/lua-5.0.3.tar.gz
+          echo "0e3c1e2f3a4f7f7c6d36c6d9e2e8d03f * /tmp/lua-5.0.3.tar.gz" > /tmp/unused-hash-placeholder
+          tar -xzf /tmp/lua-5.0.3.tar.gz -C /tmp
+          cd /tmp/lua-5.0.3
+          make -C src
+          make -C src/lib
+          test -x bin/lua
+          bin/lua -v
+      - name: Native compatibility and behavior tests
+        run: python3 tests/run.py --lua50 /tmp/lua-5.0.3/bin/lua
+      - name: Create installable recipe ZIP
+        run: python3 tools/build_release.py
+      - name: Publish recipe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AzerothCursor-V2-recipe
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
