@@ -1,13 +1,13 @@
 local A=AzerothCursor
 local strings={
- fr={title="Azeroth Cursor",subtitle="Retrouvez votre souris au milieu des effets.",enabled="Repère actif",pulse="Halo animé",classIcon="Icône de classe",yes="Oui",no="Non",
+ fr={tabAppearance="Apparence",tabEffects="Effets",tabIcons="Icônes",title="Azeroth Cursor",subtitle="Retrouvez votre souris au milieu des effets.",enabled="Repère actif",pulse="Halo animé",classIcon="Icône de classe",yes="Oui",no="Non",
  size="Diamètre du repère",thickness="Épaisseur de l'anneau",opacity="Opacité",halo="Intensité du halo",crosshair="Taille du réticule",dot="Taille du point central",iconSize="Taille de l'icône",
  balanced="Équilibré",raid="Combat intense",minimal="Discret",random="Aléatoire",preview="APERÇU",color="Choisir la couleur",native="Origine",cancel="Annuler",accept="Valider",red="Rouge",green="Vert",blue="Bleu",miniTip="Clic : options. Glisser : déplacer.",custom="Personnalisée",find="Retrouver le curseur",close="Fermer",
  quickSave="Sauver rapide",quickLoad="Charger rapide",hint="Repère et icône sont indépendants : l'un, l'autre, ou les deux. Les clics passent au travers.",footer="/azcursor find : signal  •  /azcursor random : hasard  •  /azcursor off : off",
  detail="Origine : curseur natif.\nRepère et icône de classe sont optionnels.\nAléatoire : tout sauf repère forcé actif.",
  Cyan="Cyan",Magenta="Magenta",Lime="Vert citron",Gold="Or",White="Blanc",Orange="Orange",Red="Rouge",Blue="Bleu",
  WARRIOR="Guerrier", PALADIN="Paladin", HUNTER="Chasseur", ROGUE="Voleur", PRIEST="Prêtre", SHAMAN="Chaman", MAGE="Mage", WARLOCK="Démoniste", DRUID="Druide"},
- en={title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",classIcon="Class icon",yes="On",no="Off",
+ en={tabAppearance="Appearance",tabEffects="Effects",tabIcons="Icons",title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",classIcon="Class icon",yes="On",no="Off",
  size="Marker diameter",thickness="Ring thickness",opacity="Opacity",halo="Halo intensity",crosshair="Crosshair size",dot="Center dot size",iconSize="Class icon size",
  balanced="Balanced",raid="Intense combat",minimal="Minimal",random="Random",preview="PREVIEW",color="Choose color",native="Original",cancel="Cancel",accept="Apply",red="Red",green="Green",blue="Blue",miniTip="Click: settings. Drag: move.",custom="Custom",find="Locate cursor",close="Close",
  quickSave="Quick save",quickLoad="Quick load",hint="Marker and class icon are independent: either, or both. All clicks pass through.",footer="/azcursor find: beacon  •  /azcursor random: shuffle  •  /azcursor off: off",
@@ -192,6 +192,37 @@ local function ToggleAppearance(button,active)
   button.text:SetTextColor(1,1,1)
  end
 end
+-- Compact, navigable settings groups; all tabs retain the live preview.
+function A.SelectTab(name)
+ local p=A.panel
+ if not p then return end
+ p.activeTab=name
+ local groups={appearance={size=true,thickness=true,opacity=true},effects={halo=true,crosshair=true,dot=true},icons={iconSize=true}}
+ local visible=groups[name] or groups.appearance
+ local index=0
+ for _,row in ipairs(p.rows) do
+  local show=visible[row.key]
+  for _,part in ipairs({row.label,row.value,row.minus,row.plus,row.slider}) do
+   if show then part:Show() else part:Hide() end
+  end
+  if show then
+   local y=-262-index*82
+   row.label:ClearAllPoints();row.label:SetPoint("TOPLEFT",p,"TOPLEFT",22,y)
+   row.value:ClearAllPoints();row.value:SetPoint("TOPLEFT",p,"TOPLEFT",330,y)
+   row.minus:ClearAllPoints();row.minus:SetPoint("TOPLEFT",p,"TOPLEFT",22,y-27)
+   row.plus:ClearAllPoints();row.plus:SetPoint("TOPLEFT",p,"TOPLEFT",372,y-27)
+   row.slider:ClearAllPoints();row.slider:SetPoint("TOPLEFT",p,"TOPLEFT",60,y-30)
+   index=index+1
+  end
+ end
+ if p.classButtons then
+  for _,b in ipairs(p.classButtons) do if name=="icons" then b:Show() else b:Hide() end end
+ end
+ if p.tabs then
+  for key,b in pairs(p.tabs) do ToggleAppearance(b,key==name) end
+ end
+end
+
 function A.RefreshOptions()
  if not A.panel then return end
  local p=A.panel
@@ -217,6 +248,7 @@ function A.RefreshOptions()
    ToggleAppearance(button,active)
   end
  end
+ if p.activeTab then A.SelectTab(p.activeTab) end
  A.StylePreview()
  if A.HasOverlay() then A.preview:Show();p.nativeCursor:Hide() else A.preview:Hide();p.nativeCursor:Show() end
 end
@@ -316,6 +348,10 @@ function A.BuildOptions()
  p.presetButtons.raid=LocalButton("raid",222,-86,112,function() A.Preset("raid") end)
  p.presetButtons.minimal=LocalButton("minimal",342,-86,80,function() A.Preset("minimal") end)
  p.language=Button(p,528,-86,130,32,function() A.db.language=A.db.language=="fr" and "en" or "fr";A.Apply() end)
+ p.tabs={}
+ p.tabs.appearance=LocalButton("tabAppearance",22,-207,126,function() A.SelectTab("appearance") end)
+ p.tabs.effects=LocalButton("tabEffects",154,-207,126,function() A.SelectTab("effects") end)
+ p.tabs.icons=LocalButton("tabIcons",286,-207,126,function() A.SelectTab("icons") end)
  -- Marker toggles stay left of the preview column (starts at x=438).
  p.enabled=Button(p,22,-132,190,32,function() A.db.enabled=not A.db.enabled;A.Apply() end)
  p.pulse=Button(p,222,-132,190,32,function() A.db.pulse=not A.db.pulse;A.Apply() end)
@@ -379,7 +415,7 @@ function A.BuildOptions()
   else A.Say("No Quick profile saved yet.") end
  end)
  table.insert(UISpecialFrames,"AzerothCursorOptions")
- p:Hide();A.RefreshOptions()
+ p:Hide();A.SelectTab("appearance");A.RefreshOptions()
 end
 
 function A.ToggleOptions()
