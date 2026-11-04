@@ -183,6 +183,7 @@ function A.Update(dt)
  A.findRemaining=math.max(0,(A.findRemaining or 0)-dt)
  if A.findRemaining==0 and A.findOnly then
   A.findOnly=false;A.Style(A.visual)
+  A.visual.beacon:Hide()
  end
  local f=A.visual
  if not (A.HasOverlay() or A.findOnly) or not GetCursorPosition or (IsMouselooking and IsMouselooking()) then f:Hide();return end
