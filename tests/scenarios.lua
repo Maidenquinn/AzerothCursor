@@ -54,6 +54,10 @@ assert(A.SaveProfile("Default"))
 assert(table.getn(A.ProfileNames())==1)
 A.db.size=100
 assert(A.LoadProfile("Default") and A.db.size==64)
+assert(A.DuplicateProfile("Default","Copy"))
+assert(A.RenameProfile("Copy","Renamed"))
+assert(not A.RenameProfile("Default","Renamed"))
+assert(A.DeleteProfile("Renamed"))
 assert(A.DeleteProfile("Default") and table.getn(A.ProfileNames())==0)
 assert(not A.SaveProfile("bad/name"))
 
