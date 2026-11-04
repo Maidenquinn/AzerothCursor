@@ -13,7 +13,6 @@ jobs:
       - name: Build native Lua 5.0
         run: |
           curl -fL --retry 3 https://www.lua.org/ftp/lua-5.0.3.tar.gz -o /tmp/lua-5.0.3.tar.gz
-          echo "0e3c1e2f3a4f7f7c6d36c6d9e2e8d03f * /tmp/lua-5.0.3.tar.gz" > /tmp/unused-hash-placeholder
           tar -xzf /tmp/lua-5.0.3.tar.gz -C /tmp
           cd /tmp/lua-5.0.3
           make -C src
