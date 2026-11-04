@@ -3,14 +3,14 @@ local strings={
  fr={title="Azeroth Cursor",subtitle="Retrouvez votre souris au milieu des effets.",enabled="Repère actif",pulse="Halo animé",classIcon="Icône de classe",yes="Oui",no="Non",
  size="Diamètre du repère",thickness="Épaisseur de l'anneau",opacity="Opacité",halo="Intensité du halo",crosshair="Taille du réticule",dot="Taille du point central",iconSize="Taille de l'icône",
  balanced="Équilibré",raid="Combat intense",minimal="Discret",random="Aléatoire",preview="APERÇU",color="Choisir la couleur",native="Origine",cancel="Annuler",accept="Valider",red="Rouge",green="Vert",blue="Bleu",miniTip="Clic : options. Glisser : déplacer.",custom="Personnalisée",find="Retrouver le curseur",close="Fermer",
- hint="Repère et icône sont indépendants : l'un, l'autre, ou les deux. Les clics passent au travers.",footer="/azcursor find : signal  •  /azcursor random : hasard  •  /azcursor off : off",
+ quickSave="Sauver profil rapide",quickLoad="Charger profil rapide",hint="Repère et icône sont indépendants : l'un, l'autre, ou les deux. Les clics passent au travers.",footer="/azcursor find : signal  •  /azcursor random : hasard  •  /azcursor off : off",
  detail="Origine : curseur natif.\nRepère et icône de classe sont optionnels.\nAléatoire : tout sauf repère forcé actif.",
  Cyan="Cyan",Magenta="Magenta",Lime="Vert citron",Gold="Or",White="Blanc",Orange="Orange",Red="Rouge",Blue="Bleu",
  WARRIOR="Guerrier", PALADIN="Paladin", HUNTER="Chasseur", ROGUE="Voleur", PRIEST="Prêtre", SHAMAN="Chaman", MAGE="Mage", WARLOCK="Démoniste", DRUID="Druide"},
  en={title="Azeroth Cursor",subtitle="Find your mouse in the middle of spell effects.",enabled="Cursor marker",pulse="Animated halo",classIcon="Class icon",yes="On",no="Off",
  size="Marker diameter",thickness="Ring thickness",opacity="Opacity",halo="Halo intensity",crosshair="Crosshair size",dot="Center dot size",iconSize="Class icon size",
  balanced="Balanced",raid="Intense combat",minimal="Minimal",random="Random",preview="PREVIEW",color="Choose color",native="Original",cancel="Cancel",accept="Apply",red="Red",green="Green",blue="Blue",miniTip="Click: settings. Drag: move.",custom="Custom",find="Locate cursor",close="Close",
- hint="Marker and class icon are independent: either, or both. All clicks pass through.",footer="/azcursor find: beacon  •  /azcursor random: shuffle  •  /azcursor off: off",
+ quickSave="Save quick profile",quickLoad="Load quick profile",hint="Marker and class icon are independent: either, or both. All clicks pass through.",footer="/azcursor find: beacon  •  /azcursor random: shuffle  •  /azcursor off: off",
  detail="Original: native cursor.\nMarker and class icon are optional.\nRandom: everything else, marker stays on.",
  Cyan="Cyan",Magenta="Magenta",Lime="Lime",Gold="Gold",White="White",Orange="Orange",Red="Red",Blue="Blue",
  WARRIOR="Warrior", PALADIN="Paladin", HUNTER="Hunter", ROGUE="Rogue", PRIEST="Priest", SHAMAN="Shaman", MAGE="Mage", WARLOCK="Warlock", DRUID="Druid"}
@@ -370,6 +370,14 @@ function A.BuildOptions()
  LocalButton("find",22,-570,236,A.Find)
  LocalButton("close",268,-570,154,function() p:Hide() end)
  Label("footer",22,-620,400,32,11)
+ -- Quick profile actions are intentionally separate from the advanced CLI manager.
+ p.quickSave=LocalButton("quickSave",438,-620,106,function()
+  if A.SaveProfile("Quick") then A.Say(A.L("quickSave")..": Quick") end
+ end)
+ p.quickLoad=LocalButton("quickLoad",550,-620,108,function()
+  if A.LoadProfile("Quick") then A.Say(A.L("quickLoad")..": Quick")
+  else A.Say("No Quick profile saved yet.") end
+ end)
  table.insert(UISpecialFrames,"AzerothCursorOptions")
  p:Hide();A.RefreshOptions()
 end
