@@ -15,8 +15,7 @@ jobs:
           curl -fL --retry 3 https://www.lua.org/ftp/lua-5.0.3.tar.gz -o /tmp/lua-5.0.3.tar.gz
           tar -xzf /tmp/lua-5.0.3.tar.gz -C /tmp
           cd /tmp/lua-5.0.3
-          make -C src
-          make -C src/lib
+          make linux
           test -x bin/lua
           bin/lua -v
       - name: Native compatibility and behavior tests
