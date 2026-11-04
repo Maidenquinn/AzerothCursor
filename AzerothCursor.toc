@@ -2,7 +2,7 @@
 ## Title: Azeroth Cursor
 ## Notes: High contrast cursor ring, aura and crosshair. FR / EN.
 ## Author: Kevin / Maidenhead
-## Version: 1.2.0
+## Version: 2.0.0-beta.1
 ## SavedVariables: AzerothCursorDB
 
 Core.lua
