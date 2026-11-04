@@ -221,8 +221,12 @@ function A.Command(message)
   if action=="save" and A.SaveProfile(name) then A.Say("Profile saved: "..name)
   elseif action=="load" and A.LoadProfile(name) then A.Say("Profile loaded: "..name)
   elseif action=="delete" and A.DeleteProfile(name) then A.Say("Profile deleted: "..name)
+  elseif action=="rename" or action=="duplicate" then
+   local _,_,source,target=string.find(name or "","^([%w_%-]+)%s+([%w_%-]+)$")
+   local ok=action=="rename" and A.RenameProfile(source,target) or action=="duplicate" and A.DuplicateProfile(source,target)
+   if ok then A.Say("Profile "..action..": "..source.." -> "..target) else A.Say("Profile operation failed") end
   elseif msg=="profile list" then A.Say("Profiles: "..table.concat(A.ProfileNames(),", "))
-  else A.Say("Usage: /azcursor profile save|load|delete NAME, or profile list") end
+  else A.Say("Usage: /azcursor profile save|load|delete NAME; rename|duplicate OLD NEW; list") end
  elseif msg=="random" then A.Randomize()
  elseif msg=="native" or msg=="balanced" or msg=="raid" or msg=="minimal" then A.Preset(msg)
  elseif msg=="reset" then AzerothCursorDB={language=A.db.language,profiles=A.db.profiles};A.InitDB();A.Apply()
