@@ -1,4 +1,4 @@
-AzerothCursor = { version = "1.2.0" }
+AzerothCursor = { version = "2.0.0-beta.1" }
 local A = AzerothCursor
 A.colors = {
  {"Cyan", 0, 1, 1}, {"Magenta", 1, .12, .85}, {"Lime", .45, 1, .05},
@@ -222,7 +222,7 @@ function A.Command(message)
   else A.Say("Usage: /azcursor profile save|load|delete NAME, or profile list") end
  elseif msg=="random" then A.Randomize()
  elseif msg=="native" or msg=="balanced" or msg=="raid" or msg=="minimal" then A.Preset(msg)
- elseif msg=="reset" then AzerothCursorDB={language=A.db.language};A.InitDB();A.Apply()
+ elseif msg=="reset" then AzerothCursorDB={language=A.db.language,profiles=A.db.profiles};A.InitDB();A.Apply()
  elseif msg=="fr" or msg=="en" then A.db.language=msg;A.Apply()
  else
   local _,_,hex=string.find(msg,"^color%s+#?(%x%x%x%x%x%x)$")
