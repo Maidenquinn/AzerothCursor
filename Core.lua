@@ -210,12 +210,14 @@ function A.Say(text)
  if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff00ffffAzeroth Cursor|r: "..text) end
 end
 function A.Command(message)
- local msg=string.lower(message or "")
+ local raw=message or ""
+ local msg=string.lower(raw)
  if msg=="on" then A.db.enabled=true;A.Apply()
  elseif msg=="off" then A.db.enabled=false;A.db.classIcon=false;A.findOnly=false;A.Apply()
  elseif msg=="find" then A.Find()
  elseif string.sub(msg,1,8)=="profile " then
-  local _,_,action,name=string.find(msg,"^profile%s+(%a+)%s+([%w _%-]+)$")
+  local _,_,action,name=string.find(raw,"^[Pp][Rr][Oo][Ff][Ii][Ll][Ee]%s+(%a+)%s+([%w _%-]+)$")
+  if action then action=string.lower(action) end
   if action=="save" and A.SaveProfile(name) then A.Say("Profile saved: "..name)
   elseif action=="load" and A.LoadProfile(name) then A.Say("Profile loaded: "..name)
   elseif action=="delete" and A.DeleteProfile(name) then A.Say("Profile deleted: "..name)
