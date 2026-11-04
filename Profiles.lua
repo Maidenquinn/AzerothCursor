@@ -62,3 +62,21 @@ function A.DeleteProfile(name)
  A.db.profiles[name]=nil
  return true
 end
+
+-- Rename without overwriting an existing profile.
+function A.RenameProfile(oldName,newName)
+ oldName=ValidName(oldName);newName=ValidName(newName)
+ if not oldName or not newName or type(A.db.profiles)~="table" then return false end
+ if not A.db.profiles[oldName] or A.db.profiles[newName] then return false end
+ A.db.profiles[newName]=A.db.profiles[oldName]
+ A.db.profiles[oldName]=nil
+ return true
+end
+function A.DuplicateProfile(sourceName,newName)
+ sourceName=ValidName(sourceName);newName=ValidName(newName)
+ if not sourceName or not newName or type(A.db.profiles)~="table" then return false end
+ if type(A.db.profiles[sourceName])~="table" or A.db.profiles[newName] then return false end
+ if table.getn(A.ProfileNames())>=12 then return false end
+ A.db.profiles[newName]=CopyAppearance(A.db.profiles[sourceName])
+ return true
+end
