@@ -396,10 +396,10 @@ function A.BuildOptions()
  for _,class in ipairs(A.classOrder) do
   if class~=playerClass then table.insert(otherClasses,class) end
  end
- ClassButton(p,448,-490,200,22,playerClass)
+ ClassButton(p,22,-310,390,30,playerClass)
  for i,class in ipairs(otherClasses) do
   local row,col=math.floor((i-1)/2),math.mod(i-1,2)
-  ClassButton(p,448+col*105,-517-row*26,95,22,class)
+  ClassButton(p,22+col*198,-350-row*39,192,30,class)
  end
 
  Label("hint",22,-520,400,36,12)
